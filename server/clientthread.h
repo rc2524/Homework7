@@ -15,7 +15,11 @@ public:
     
     QString waitForName();
 
+    void buddyStartedChat(QString buddy);
+
 signals:
+    void chatWith(QString name, QString buddy);
+    void messageToBuddy(Message msg);
     
 public slots:
     void sendMessage(Message msg);
@@ -24,6 +28,8 @@ public slots:
 private:
     QSslSocket* connection;
 
+    QString username;
+    QString chatBuddy;
     quint16 blockSize;
 };
 

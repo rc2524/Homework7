@@ -21,6 +21,7 @@ ClientThread::~ClientThread()
 
 QString ClientThread::waitForName()
 {
+    // Wait for the connecting client to send its username
     QDataStream in(connection);
     in.setVersion(QDataStream::Qt_4_0);
 
@@ -41,7 +42,16 @@ QString ClientThread::waitForName()
 
     connect(connection, SIGNAL(readyRead()), this, SLOT(dataReceived()));
 
+    username = name;
+
     return name;
+}
+
+void ClientThread::buddyStartedChat(QString buddy)
+{
+    chatBuddy = buddy;
+    Message m(Message::CHAT_WITH_X, buddy);
+    sendMessage(m);
 }
 
 void ClientThread::sendMessage(Message msg)
@@ -51,6 +61,9 @@ void ClientThread::sendMessage(Message msg)
 
 void ClientThread::dataReceived()
 {
+    quint16 blockSize = 0;
+
+    // Read message
     QDataStream in(connection);
     in.setVersion(QDataStream::Qt_4_0);
 
@@ -66,8 +79,23 @@ void ClientThread::dataReceived()
     quint8 type;
     in >> type;
 
-    QString nextFortune;
-    in >> nextFortune;
+    QString msg;
+    in >> msg;
+
+    // Handle/respond to message
+    if (type == Message::MESSAGE) {
+        emit messageToBuddy(Message(type, msg));
+    }
+    else if (type == Message::CHAT_WITH_X) {
+        chatBuddy = msg;
+        emit chatWith(username, chatBuddy);
+    }
+    else if (type == Message::LOGOFF) {
+
+    }
+    else if (type == Message::ERROR) {
+
+    }
 }
 
 

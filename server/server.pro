@@ -10,7 +10,7 @@ HEADERS += server.h \
     ../src/message.h \
     clientthread.h \
     SSLServer.h
-SOURCES += main.cpp server.cpp ../src/SSLServer.cpp \
+SOURCES += main.cpp server.cpp \
     serverwindow.cpp \
     ../src/message.cpp \
     clientthread.cpp \

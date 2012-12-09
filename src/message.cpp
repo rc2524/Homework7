@@ -12,6 +12,8 @@ Message::Message(quint8 type, QString msg)
 
 void Message::setMessage(quint8 type, QString msg)
 {
+    msgType = type;
+    message = msg;
 }
 
 quint8 Message::getType() const

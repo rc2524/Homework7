@@ -16,6 +16,7 @@ public:
         LOGOFF,
         X_ONLINE,
         X_OFFLINE,
+        CHAT_WITH_X,
         MESSAGE,
         ERROR
     };

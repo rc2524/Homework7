@@ -56,21 +56,35 @@ Server::~Server()
 void Server::connectionRecieved()
 {
     ClientThread* clientThrd = new ClientThread(this,sslServer->nextPendingConnection());
-    connect(this, SIGNAL(sendMsg(QString)), clientThrd, SLOT(sendMessage(QString)));
+    QObject::connect(clientThrd, SIGNAL(chatWith(QString,QString)), this, SLOT(startChat(QString,QString)));
 
     // add get name and add to hash table.
     QString name = clientThrd->waitForName();
 
-    QList<QString> onlineClients = clients.keys();
-    for (QList<QString>::Iterator it = onlineClients.begin();
-         it != onlineClients.end(); ++it)
+    for (QHash<QString, ClientThread*>::Iterator it = clients.begin();
+         it != clients.end(); ++it)
     {
-        Message m((quint8)Message::X_ONLINE, *it);
+        Message m;
+        m.setMessage((quint8)Message::X_ONLINE, it.key());
         clientThrd->sendMessage(m);
+
+        m.setMessage((quint8)Message::X_ONLINE, name);
+        it.value()->sendMessage(m);
     }
 
     clients[name] = clientThrd;
 
     w.dispMsg(QString("%1 connected").arg(name));
+}
+
+void Server::startChat(QString user1, QString user2)
+{
+    clients[user2]->buddyStartedChat(user1);
+    QObject::disconnect(clients[user1], SIGNAL(chatWith(QString,QString)), this, SLOT(startChat(QString,QString)));
+    QObject::disconnect(clients[user2], SIGNAL(chatWith(QString,QString)), this, SLOT(startChat(QString,QString)));
+    QObject::connect(clients[user1], SIGNAL(messageToBuddy(Message)), clients[user2], SLOT(sendMessage(Message)));
+    QObject::connect(clients[user2], SIGNAL(messageToBuddy(Message)), clients[user1], SLOT(sendMessage(Message)));
+
+    w.dispMsg(QString("%1 started a chat with %2.").arg(user1).arg(user2));
 }
 
