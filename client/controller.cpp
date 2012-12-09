@@ -1,0 +1,102 @@
+#include "controller.h"
+#include "../src/message.h"
+
+Controller::Controller(QObject *parent) :
+    QObject(parent)
+{
+    //Show connect window at start
+    connectWindow = new ConnectWindow;
+    connectWindow->show();
+
+    //Connect window
+    QObject::connect(connectWindow, SIGNAL(AttemptConnection(Client)), this, SLOT(ConnectWindowAttemptConnection(Client)));
+
+    //Client list window
+}
+
+void Controller::ConnectWindowAttemptConnection(Client c) {
+    //Handle connection
+    connection.openConnection(c.ip, c.port);
+
+    Message m(Message::LOGON, c.name);
+    connection.sendMessage(m);
+
+    QObject::connect(&connection, SIGNAL(messageReceived(Message)), this, SLOT(receiveMsg(Message)));
+
+    connectWindow->close();
+
+    //Keep my name around
+    myInfo = c;
+
+    //Start client list window
+    clientListWindow = new ClientListWindow;
+    clientListWindow->show();
+
+    //Connect routes
+    QObject::connect(this, SIGNAL(newClientOnServer(Client)), clientListWindow, SLOT(addClient(Client)));
+    QObject::connect(this, SIGNAL(clientLeftServer(Client)), clientListWindow, SLOT(removeClient(Client)));
+    QObject::connect(clientListWindow, SIGNAL(connectToClient(Client)), this, SLOT(ClientListAttemptConnection(Client))); //User presses conenct on client list
+
+}
+
+void Controller::ClientListAttemptConnection(Client c) {
+    //Handle connection
+    Message m(Message::CHAT_WITH_X, c.name);
+    connection.sendMessage(m);
+
+    buddy = c;
+    //if (error) {
+    //    QMessageBox msgBox;
+    //    msgBox.setText("Some Error");
+    //    msgBox.show();
+    //
+
+    clientListWindow->close();
+
+    //Start client list window
+    chatWindow = new ChatWindow;
+    chatWindow->setMyName(myInfo.name);
+    chatWindow->show();
+
+    //Connect routes
+    QObject::connect(chatWindow, SIGNAL(closeChat()), this, SLOT(BackToClientList()));
+    QObject::connect(this, SIGNAL(displayBuddyMessage(QString,QString)), chatWindow, SLOT(userChat(QString,QString)));
+    QObject::connect(chatWindow, SIGNAL(sendMessage(QString,QString)), this, SLOT(OnUserMessage(QString,QString)));
+}
+
+void Controller::BackToClientList() {
+    //Act like we just started again
+    chatWindow->close();
+
+    connectWindow = new ConnectWindow;  //Next line expects this to exist
+    connectWindow->show();
+    ConnectWindowAttemptConnection(myInfo);
+}
+
+
+void Controller::OnUserMessage(QString name, QString msg) {
+    Message m((quint8)Message::MESSAGE, msg);
+    connection.sendMessage(m);
+}
+
+void Controller::receiveMsg(Message msg)
+{
+    if (msg.getType() == Message::MESSAGE) {
+        emit displayBuddyMessage(buddy.name, msg.getMessage());
+    }
+    else if (msg.getType() == Message::X_ONLINE) {
+        Client c;
+        c.name = msg.getMessage();
+        emit newClientOnServer(c);
+    }
+    else if (msg.getType() == Message::X_OFFLINE) {
+        Client c;
+        c.name = msg.getMessage();
+        emit clientLeftServer(c);
+    }
+    else if (msg.getType() == Message::CHAT_WITH_X) {
+        Client c;
+        c.name = msg.getMessage();
+        ClientListAttemptConnection(c);
+    }
+}
