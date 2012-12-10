@@ -9,6 +9,7 @@
 #include "server.h"
 #include "../src/message.h"
 #include <iostream>
+#include <QDebug>
 using namespace std;
 
 Server::Server(QObject *parent) : QObject(parent)
@@ -46,17 +47,19 @@ Server::Server(QObject *parent) : QObject(parent)
 
 Server::~Server()
 {
-    for (QHash<QString, ClientThread*>::Iterator it = clients.begin();
-         it != clients.end(); ++it)
+    foreach (ClientThread* client, clients)
     {
-        delete it.value();
+        delete client;
     }
 }
 
 void Server::connectionRecieved()
 {
     ClientThread* clientThrd = new ClientThread(this,sslServer->nextPendingConnection());
-    QObject::connect(clientThrd, SIGNAL(chatWith(QString,QString)), this, SLOT(startChat(QString,QString)));
+    QObject::connect(clientThrd, SIGNAL(chatWith(QString,QString)),
+                     this, SLOT(startChat(QString,QString)));
+    QObject::connect(clientThrd, SIGNAL(loggingOff(QString)),
+                     this, SLOT(logoffUser(QString)));
 
     // add get name and add to hash table.
     QString name = clientThrd->waitForName();
@@ -70,6 +73,8 @@ void Server::connectionRecieved()
 
         m.setMessage((quint8)Message::X_ONLINE, name);
         it.value()->sendMessage(m);
+
+        qDebug() << name << "and" << it.key() << "know each other are online.";
     }
 
     clients[name] = clientThrd;
@@ -86,5 +91,21 @@ void Server::startChat(QString user1, QString user2)
     QObject::connect(clients[user2], SIGNAL(messageToBuddy(Message)), clients[user1], SLOT(sendMessage(Message)));
 
     w.dispMsg(QString("%1 started a chat with %2.").arg(user1).arg(user2));
+}
+
+void Server::logoffUser(QString user)
+{
+    delete clients[user];
+    clients.remove(user);
+
+    qDebug() << "Disconnecting" << user;
+
+    Message m((quint8)Message::X_OFFLINE, user);
+
+    foreach (ClientThread* client, clients) {
+        client->sendMessage(m);
+    }
+
+    w.dispMsg(QString("%1 left the server.").arg(user));
 }
 

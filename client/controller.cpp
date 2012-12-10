@@ -33,6 +33,7 @@ void Controller::ConnectWindowAttemptConnection(Client c) {
     clientListWindow->show();
 
     //Connect routes
+    QObject::connect(clientListWindow, SIGNAL(quit()), this, SLOT(quit()));
     QObject::connect(this, SIGNAL(newClientOnServer(Client)), clientListWindow, SLOT(addClient(Client)));
     QObject::connect(this, SIGNAL(clientLeftServer(Client)), clientListWindow, SLOT(removeClient(Client)));
     QObject::connect(clientListWindow, SIGNAL(connectToClient(Client)), this, SLOT(ClientListAttemptConnection(Client))); //User presses conenct on client list
@@ -52,6 +53,7 @@ void Controller::ClientListAttemptConnection(Client c) {
     //
 
     clientListWindow->close();
+    delete clientListWindow;
 
     //Start client list window
     chatWindow = new ChatWindow;
@@ -60,17 +62,30 @@ void Controller::ClientListAttemptConnection(Client c) {
 
     //Connect routes
     QObject::connect(chatWindow, SIGNAL(closeChat()), this, SLOT(BackToClientList()));
+    QObject::connect(chatWindow, SIGNAL(quit()), this, SLOT(quit()));
     QObject::connect(this, SIGNAL(displayBuddyMessage(QString,QString)), chatWindow, SLOT(userChat(QString,QString)));
     QObject::connect(chatWindow, SIGNAL(sendMessage(QString,QString)), this, SLOT(OnUserMessage(QString,QString)));
+    QObject::connect(this, SIGNAL(clientLeftServer(Client)), this, SLOT(buddyDisconnect(Client)));
 }
 
-void Controller::BackToClientList() {
-    //Act like we just started again
-    chatWindow->close();
+void Controller::BackToClientList()
+{
+    quit();
 
+    QObject::disconnect(this, SIGNAL(clientLeftServer(Client)), this, SLOT(buddyDisconnect(Client)));
+
+    //Act like we just started again
     connectWindow = new ConnectWindow;  //Next line expects this to exist
     connectWindow->show();
+    chatWindow->close();
+    delete chatWindow;
     ConnectWindowAttemptConnection(myInfo);
+}
+
+void Controller::quit()
+{
+    Message m((quint8)Message::LOGOFF, myInfo.name);
+    connection.sendMessage(m);
 }
 
 
@@ -98,5 +113,12 @@ void Controller::receiveMsg(Message msg)
         Client c;
         c.name = msg.getMessage();
         ClientListAttemptConnection(c);
+    }
+}
+
+void Controller::buddyDisconnect(Client c)
+{
+    if (c.name == buddy.name) {
+        BackToClientList();
     }
 }

@@ -41,9 +41,13 @@ public slots:
 signals:
     //User pressed connect button
     void connectToClient(Client c);
+
+    void quit();
+
 private slots:
     //Connect button
     void on_pushButton_clicked();
+    void on_quitButton_clicked();
 };
 
 #endif // CLIENTLISTWINDOW_H

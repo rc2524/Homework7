@@ -28,6 +28,7 @@ signals:
 private slots:
     void connectionRecieved();
     void startChat(QString user1, QString user2);
+    void logoffUser(QString user);
 
 private:
     ServerWindow w;

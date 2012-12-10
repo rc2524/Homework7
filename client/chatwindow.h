@@ -30,6 +30,8 @@ private slots:
     //User pressed send button
     void on_sendButton_clicked();
 
+    void on_quitButton_clicked();
+
 public slots:
     //A user joined the session
     void userJoined(QString name);
@@ -50,8 +52,10 @@ private:
     QTextStream stream;
     QString buffer;
 signals:
-    //User pressed close button
+    //User pressed back button
     void closeChat();
+    //User pressed the Quitbutton
+    void quit();
 
     //User sent a message
     void sendMessage(QString name, QString msg);

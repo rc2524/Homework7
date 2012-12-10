@@ -1,5 +1,6 @@
 #include "clientthread.h"
 #include <QDataStream>
+#include <QDebug>
 
 ClientThread::ClientThread(QObject *parent, QSslSocket *socket) :
     QThread(parent)
@@ -16,7 +17,9 @@ ClientThread::ClientThread(QObject *parent, QSslSocket *socket) :
 
 ClientThread::~ClientThread()
 {
-    connection->disconnectFromHost();
+    if (connection) {
+        connection->disconnectFromHost();
+    }
 }
 
 QString ClientThread::waitForName()
@@ -43,6 +46,8 @@ QString ClientThread::waitForName()
     connect(connection, SIGNAL(readyRead()), this, SLOT(dataReceived()));
 
     username = name;
+
+    qDebug() << name << "connected and sent username";
 
     return name;
 }
@@ -82,16 +87,21 @@ void ClientThread::dataReceived()
     QString msg;
     in >> msg;
 
+    qDebug() << "received message:";
+
     // Handle/respond to message
     if (type == Message::MESSAGE) {
         emit messageToBuddy(Message(type, msg));
+        qDebug() << "Message from" << username << "to" << chatBuddy << msg;
     }
     else if (type == Message::CHAT_WITH_X) {
         chatBuddy = msg;
         emit chatWith(username, chatBuddy);
+        qDebug() << username << "requesting to chat with" << msg;
     }
     else if (type == Message::LOGOFF) {
-
+        emit loggingOff(username);
+        qDebug() << "logging off" << username;
     }
     else if (type == Message::ERROR) {
 

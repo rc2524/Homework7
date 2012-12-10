@@ -63,3 +63,10 @@ void ClientListWindow::on_pushButton_clicked()
 
     emit connectToClient(clientList[pos.row()].c);
 }
+
+void ClientListWindow::on_quitButton_clicked()
+{
+    emit quit();
+
+    this->close();
+}

@@ -11,7 +11,6 @@ TEMPLATE = app
 
 
 SOURCES += main.cpp\
-        mainwindow.cpp \
     clientlistwindow.cpp \
     connectwindow.cpp \
     chatwindow.cpp \
@@ -19,7 +18,7 @@ SOURCES += main.cpp\
     connection.cpp \
     ../src/message.cpp
 
-HEADERS  += mainwindow.h \
+HEADERS  += \
     clientlistwindow.h \
     Client.h \
     connectwindow.h \
@@ -28,7 +27,7 @@ HEADERS  += mainwindow.h \
     connection.h \
     ../src/message.h
 
-FORMS    += mainwindow.ui \
+FORMS    += \
     clientlistwindow.ui \
     connectwindow.ui \
     chatwindow.ui

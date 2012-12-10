@@ -1,5 +1,6 @@
 #include "connection.h"
 #include <QDataStream>
+#include <QDebug>
 
 Connection::Connection()
 {
@@ -47,4 +48,5 @@ void Connection::receiveData()
 void Connection::sendMessage(Message msg)
 {
     socket.write(msg.getBlock());
+    qDebug() << "Wrote" << msg.getType() << msg.getMessage();
 }

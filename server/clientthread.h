@@ -20,6 +20,7 @@ public:
 signals:
     void chatWith(QString name, QString buddy);
     void messageToBuddy(Message msg);
+    void loggingOff(QString name);
     
 public slots:
     void sendMessage(Message msg);

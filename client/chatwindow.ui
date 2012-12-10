@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>643</width>
+    <width>588</width>
     <height>591</height>
    </rect>
   </property>
@@ -24,9 +24,16 @@
     <item>
      <layout class="QHBoxLayout" name="horizontalLayout_2">
       <item>
+       <widget class="QPushButton" name="quitButton">
+        <property name="text">
+         <string>Quit</string>
+        </property>
+       </widget>
+      </item>
+      <item>
        <widget class="QPushButton" name="exitButton">
         <property name="text">
-         <string>Exit</string>
+         <string>Back</string>
         </property>
        </widget>
       </item>
@@ -46,7 +53,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>643</width>
+     <width>588</width>
      <height>25</height>
     </rect>
    </property>

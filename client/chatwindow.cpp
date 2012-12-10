@@ -26,11 +26,14 @@ void ChatWindow::on_exitButton_clicked()
 {
     //Tell everyone to close the chat down
     emit closeChat();
-
-    //Close the window
-    this->close();
 }
 
+void ChatWindow::on_quitButton_clicked()
+{
+    emit quit();
+
+    this->close();
+}
 
 //A user joined the session
 void ChatWindow::userJoined(QString name) {
@@ -60,3 +63,4 @@ void ChatWindow::on_sendButton_clicked()
     ui->messageInput->clear();
 
 }
+
