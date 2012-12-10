@@ -1,6 +1,7 @@
 #include "clientthread.h"
 #include <QDataStream>
 #include <QDebug>
+#include <QMessageBox>
 
 ClientThread::ClientThread(QObject *parent, QSslSocket *socket) :
     QThread(parent)

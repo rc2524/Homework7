@@ -64,6 +64,14 @@ void Server::connectionRecieved()
     // add get name and add to hash table.
     QString name = clientThrd->waitForName();
 
+    if (clients.contains(name)) {
+        Message m((quint8)Message::ERROR, QString("Username already in use!"));
+        clientThrd->sendMessage(m);
+        return;
+    }
+
+    clientThrd->start();
+
     for (QHash<QString, ClientThread*>::Iterator it = clients.begin();
          it != clients.end(); ++it)
     {

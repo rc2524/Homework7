@@ -1,10 +1,12 @@
 #include "connection.h"
 #include <QDataStream>
 #include <QDebug>
+#include <QMessageBox>
 
 Connection::Connection()
 {
     QObject::connect(&socket, SIGNAL(readyRead()), this, SLOT(receiveData()));
+    QObject::connect(&socket, SIGNAL(error(QAbstractSocket::SocketError)), this, SLOT(receiveError(QAbstractSocket::SocketError)));
 }
 
 void Connection::openConnection(QString &IP, int port)
@@ -48,6 +50,14 @@ void Connection::receiveData()
      emit messageReceived(Message(type, msg));
 
      blockSize = 0;
+}
+
+void Connection::receiveError(QAbstractSocket::SocketError err)
+{
+    QMessageBox msgBox;
+    msgBox.setText(QString("Error: %1").arg(socket.errorString()));
+    msgBox.exec();
+    exit(2);
 }
 
 void Connection::sendMessage(Message msg)

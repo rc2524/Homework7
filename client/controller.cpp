@@ -46,11 +46,6 @@ void Controller::ClientListAttemptConnection(Client c) {
     connection.sendMessage(m);
 
     buddy = c;
-    //if (error) {
-    //    QMessageBox msgBox;
-    //    msgBox.setText("Some Error");
-    //    msgBox.show();
-    //
 
     clientListWindow->close();
     delete clientListWindow;
@@ -115,6 +110,12 @@ void Controller::receiveMsg(Message msg)
         Client c;
         c.name = msg.getMessage();
         ClientListAttemptConnection(c);
+    }
+    else if (msg.getType() == Message::ERROR) {
+        QMessageBox msgBox;
+        msgBox.setText(msg.getMessage());
+        msgBox.exec();
+        exit(3);
     }
 }
 

@@ -25,6 +25,8 @@ public slots:
 private slots:
     void receiveData();
 
+    void receiveError(QAbstractSocket::SocketError err);
+
 private:
     QSslSocket socket;
 
