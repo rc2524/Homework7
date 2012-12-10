@@ -100,8 +100,8 @@ void ClientThread::dataReceived()
         qDebug() << username << "requesting to chat with" << msg;
     }
     else if (type == Message::LOGOFF) {
-        emit loggingOff(username);
         qDebug() << "logging off" << username;
+        emit loggingOff(username);
     }
     else if (type == Message::ERROR) {
 
