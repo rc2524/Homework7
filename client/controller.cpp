@@ -11,6 +11,8 @@ Controller::Controller(QObject *parent) :
     //Connect window
     QObject::connect(connectWindow, SIGNAL(AttemptConnection(Client)), this, SLOT(ConnectWindowAttemptConnection(Client)));
 
+    QObject::connect(&connection, SIGNAL(messageReceived(Message)), this, SLOT(receiveMsg(Message)));
+
     //Client list window
 }
 
@@ -20,8 +22,6 @@ void Controller::ConnectWindowAttemptConnection(Client c) {
 
     Message m(Message::LOGON, c.name);
     connection.sendMessage(m);
-
-    QObject::connect(&connection, SIGNAL(messageReceived(Message)), this, SLOT(receiveMsg(Message)));
 
     connectWindow->close();
 

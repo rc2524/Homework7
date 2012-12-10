@@ -22,7 +22,7 @@ void Connection::openConnection(QString &IP, int port)
 
 void Connection::waitForTransfer()
 {
-    socket.waitForBytesWritten(2000);
+    socket.waitForBytesWritten(1000);
 }
 
 void Connection::receiveData()

@@ -6,7 +6,7 @@ ClientThread::ClientThread(QObject *parent, QSslSocket *socket) :
     QThread(parent)
 {
     connection = socket;
-    if (!connection->waitForEncrypted(1000)){
+    if (!connection->waitForEncrypted(2000)){
         qDebug() << "Waited for 1 second for encryption handshake without success";
         return;
     }
@@ -17,6 +17,9 @@ ClientThread::ClientThread(QObject *parent, QSslSocket *socket) :
 
 ClientThread::~ClientThread()
 {
+    if (!connection) {
+        connection->abort();
+    }
 }
 
 QString ClientThread::waitForName()
@@ -59,6 +62,7 @@ void ClientThread::buddyStartedChat(QString buddy)
 void ClientThread::sendMessage(Message msg)
 {
     connection->write(msg.getBlock());
+    connection->waitForBytesWritten(1000);
 }
 
 void ClientThread::dataReceived()
