@@ -74,6 +74,8 @@ void Controller::BackToClientList()
 
     QObject::disconnect(this, SIGNAL(clientLeftServer(Client)), this, SLOT(buddyDisconnect(Client)));
 
+    connection.waitForTransfer();
+
     //Act like we just started again
     connectWindow = new ConnectWindow;  //Next line expects this to exist
     connectWindow->show();

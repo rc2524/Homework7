@@ -20,6 +20,11 @@ void Connection::openConnection(QString &IP, int port)
     blockSize = 0;
 }
 
+void Connection::waitForTransfer()
+{
+    socket.waitForBytesWritten(2000);
+}
+
 void Connection::receiveData()
 {
      QDataStream in(&socket);

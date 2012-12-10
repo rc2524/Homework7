@@ -14,6 +14,8 @@ public:
 
     void openConnection(QString& IP, int port);
 
+    void waitForTransfer();
+
 signals:
     void messageReceived(Message msg);
 

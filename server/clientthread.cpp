@@ -17,9 +17,6 @@ ClientThread::ClientThread(QObject *parent, QSslSocket *socket) :
 
 ClientThread::~ClientThread()
 {
-    if (connection) {
-        connection->disconnectFromHost();
-    }
 }
 
 QString ClientThread::waitForName()
